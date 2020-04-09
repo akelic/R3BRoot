@@ -150,6 +150,13 @@ InitStatus R3BBunchedFiberCal2Hit::Init()
             fHitPar = nullptr;
         }
     }
+
+    for (int i = 1; i <= N_FIBER_MAX; i++)
+    {
+        gain_temp[i - 1] = 10.;
+        tsync_temp[i - 1] = 0.;
+    }
+
     if (fHitPar)
     {
         for (int i = 1; i <= N_FIBER_MAX; i++)
@@ -159,16 +166,12 @@ InitStatus R3BBunchedFiberCal2Hit::Init()
                 R3BBunchedFiberHitModulePar* par = fHitPar->GetModuleParAt(i);
                 if (par && par->GetGainMA() > 0.)
                     gain_temp[i - 1] = par->GetGainMA();
-                else
-                    gain_temp[i - 1] = 10.;
             }
             if (fIsGain && !fIsTsync) // tsync already made, gain will be done now
             {
                 R3BBunchedFiberHitModulePar* par = fHitPar->GetModuleParAt(i);
                 if (par)
                     tsync_temp[i - 1] = par->GetSync();
-                else
-                    tsync_temp[i - 1] = 0.;
             }
         }
     }
@@ -368,6 +371,9 @@ void R3BBunchedFiberCal2Hit::Exec(Option_t* option)
             auto cur_cal_ns = cur_cal->GetTime_ns() - cur_cal_trig_ns;
             auto lead_ns = lead->GetTime_ns() - lead_trig_ns;
             auto tot_ns = fmod(cur_cal_ns - lead_ns + c_period + c_period / 2, c_period) - c_period / 2;
+
+            //            auto tot = fmod(cur_cal->GetTime_ns() - lead->GetTime_ns() + c_period, c_period);
+
             if (fName == "Fi10" && fnEvents == 17409 && side_i == 0)
                 summmpt += 1;
             if (fName == "Fi10" && fnEvents == 17409 && side_i == 1 && ch_i == 0)
@@ -376,15 +382,18 @@ void R3BBunchedFiberCal2Hit::Exec(Option_t* option)
                 summsm2 += 1;
 
             if (fName == "Fi10" && fnEvents == 17409)
+
                 cout << "Input: " << side_i << "; " << ch_i + 1 << ", " << lead->GetTime_ns() << "; " << tot_ns << endl;
 
             if (tot_ns < 1000)
+
             {
                 // if (side_i==0) tot_ns -= 9.;//taken out for the moment MH
 
                 // channel.tot_list.push_back(ToT(lead, cur_cal, tot_ns)); -> this lead to: t1>t2>t3....; we need
                 // t1<t2<t3....
                 channel.tot_list.push_front(ToT(lead, cur_cal, lead_ns, cur_cal_ns, tot_ns));
+
                 channel.lead_list.pop_front();
             }
         }
@@ -455,6 +464,7 @@ void R3BBunchedFiberCal2Hit::Exec(Option_t* option)
             // MH                    single = spmt_tot.lead->GetChannel();
 
             // cout<<"MA Fiber ch: "<<mapmt_tot.lead->GetChannel()<<" Fiber: "<< fiber_id<<" ToT: "<<
+
             // mapmt_tot.tot_ns<<endl;
             //                    cout<<"S channels: "<<spmt_tot.lead->GetChannel()<<" ToT: "<<spmt_tot.tot_ns<<" mult:
             //                    "<<s_mult<<endl;
@@ -465,9 +475,11 @@ void R3BBunchedFiberCal2Hit::Exec(Option_t* option)
             fiber_id = FixMistake(fiber_id);
 
             // Calibrate hit fiber.
+
             auto tot_mapmt = mapmt_tot.tot_ns;
             // MH                    auto tot_spmt = spmt_tot.tot_ns;
             Double_t t_mapmt = mapmt_tot.lead_ns;
+
             // MH                    Double_t t_spmt = spmt_tot.lead->GetTime_ns();
 
             // "Push" two times in the same clock cycle:
@@ -537,7 +549,6 @@ void R3BBunchedFiberCal2Hit::Exec(Option_t* option)
 
               tot_spmt_max = tot_spmt;
               tot_spmt_max_fiber_id = fiber_id;
-
             }
             */
             /*
@@ -563,11 +574,13 @@ void R3BBunchedFiberCal2Hit::Exec(Option_t* option)
                     {
 
                         while (t_tofd - t_mapmt < 2048. * 1. / 2.)
+
                         {
                             t_mapmt -= 2048. * 1.;
                         }
                         while (t_tofd - t_mapmt > 2048. * 1. / 2.)
                         {
+
                             t_mapmt += 2048. * 1.;
                         }
 
@@ -642,6 +655,7 @@ void R3BBunchedFiberCal2Hit::Exec(Option_t* option)
                     //                            y = ((double)fiber_id - (double)numFibs / 2) * 0.04; // in cm
                 }
             }
+
             // cout<<"Fiber y " << y << endl;
             // MH                    if (y < -100 || y > 100)
             // MH                    {

@@ -56,6 +56,7 @@ Bool_t R3BBunchedFiberReader::Init()
             break;
         }
     }
+
     FairRootManager::Instance()->Register(fShortName + "Mapped", "Land", fMappedArray, kTRUE);
     return kTRUE;
 }
@@ -75,6 +76,10 @@ Bool_t R3BBunchedFiberReader::Read()
             uint32_t f_M = *e[1]._M;
             uint32_t c_ = *e[0]._;
             uint32_t f_ = *e[1]._;
+
+            if (it->second == 111026 || it->second == 100000)
+                std::cout << fShortName << ':' << side_i << ' ' << edge_i << ':' << c_M << ' ' << f_M << ' ' << c_
+                          << ' ' << f_ << '\n';
 
             if (c_M != f_M || c_ != f_)
             {
@@ -212,7 +217,6 @@ Bool_t R3BBunchedFiberReader::Read()
     }
     ++it->second;
 
-    // LOG(ERROR) << "R3BBunchedFiberReader::Read END";
     return kTRUE;
 }
 

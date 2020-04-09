@@ -109,6 +109,8 @@ void R3BBunchedFiberMapped2Cal::Exec(Option_t* option)
 {
     auto mapped_num = fMappedItems->GetEntriesFast();
     LOG(DEBUG) << "R3BBunchedFiberMapped2Cal::Exec:fMappedItems=" << fMappedItems->GetName() << '.';
+    if (fnEvents == 101380)
+        cout << "test" << endl;
     for (auto i = 0; i < mapped_num; i++)
     {
         auto mapped = (R3BBunchedFiberMappedData*)fMappedItems->At(i);
@@ -151,6 +153,8 @@ void R3BBunchedFiberMapped2Cal::Exec(Option_t* option)
         Double_t time_ns = -1;
         if (mapped->IsMAPMT() || mapped->IsMAPMTTrigger())
         {
+            if (fnEvents == 101380)
+                cout << "test2" << endl;
             if (fine_ns < 0. || fine_ns >= fClockFreq)
             {
                 LOG(ERROR) << "R3BBunchedFiberMapped2Cal::Exec (" << fName << "): Channel=" << channel
@@ -184,6 +188,7 @@ void R3BBunchedFiberMapped2Cal::Exec(Option_t* option)
 
             LOG(DEBUG) << " R3BBunchedFiberMapped2Cal::Exec:Channel=" << channel << ": Time=" << time_ns << "ns.";
         }
+
         if (2 == mapped->GetSide())
         {
             new ((*fCalTriggerItems)[fCalTriggerItems->GetEntriesFast()])
